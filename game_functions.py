@@ -1,9 +1,10 @@
-import pygame
 import sys
+from time import sleep
+import pygame
 import ship
 from bullet import Bullet
 from alien import Alien
-from time import sleep
+
 
 def check_keydown_events(event,ai_settings, screen, ship, bullets):
     if event.key == pygame.K_RIGHT:
@@ -25,13 +26,13 @@ def check_keyup_events(event, ship):
 
 def check_events(ai_settings, screen,ship, bullets):
     for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                check_keydown_events(event,ai_settings, screen, ship, bullets)
-
-            elif event.type == pygame.KEYUP:
-                check_keyup_events(event, ship)
+        if event.type == pygame.QUIT:
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            check_keydown_events(event,ai_settings, screen, ship, bullets)
+        elif event.type == pygame.KEYUP:
+            check_keyup_events(event, ship)
+        
                 
 def update_screen(ai_settings, screen, ship, aliens, bullets):
     screen.fill(ai_settings.bg_color)
@@ -56,12 +57,20 @@ def check_bullet_alien_collisions(ai_settings, screen, ship, bullets, aliens):
     collisions = pygame.sprite.groupcollide(bullets,aliens, True, True)
 
 
-def update_aliens(ai_settings,ship, aliens, bullets, stats, screen):
+# def ship_hit(ai_settings, screen, stats, ship, bullets, aliens):
+#     stats.ships_left -= 1
+#     aliens.empty()
+#     bullets.empty()
+#     create_fleet(ai_settings, screen, ship, aliens)
+#     ship.center_ship()
+#     sleep(0.5)
+
+def update_aliens(ai_settings,aliens, ship):   
     check_fleet_edges(ai_settings, aliens)
     aliens.update()
     if pygame.sprite.spritecollideany(ship, aliens):
-        # print("Ship hit!!")
-        ship_hit(aliens, bullets, ship, ai_settings, screen, stats)
+        # ship_hit(ai_settings, screen, stats, ship, bullets, aliens)
+        print("Ship hit!!")
         
 
 def fire_bullet(ai_settings, screen, ship, bullets):
@@ -105,20 +114,6 @@ def change_fleet_direction(ai_settings, aliens):
     for alien in aliens.sprites():
         alien.rect.y += ai_settings.fleet_drop_speed
     ai_settings.fleet_direction *= -1
-
-
-def ship_hit(aliens, bullets,ship, ai_settings,screen, stats):
-    stats.ships_left -= 1
-    aliens.empty()
-    bullets.empty()
-    create_fleet(ai_settings, screen, ship, aliens)
-    ship.center_ship()
-    sleep(0.5)
-
-
-
-
-
 
 
 
