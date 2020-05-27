@@ -56,14 +56,24 @@ def update_bullets(ai_settings,screen,ship, aliens, bullets):
 def check_bullet_alien_collisions(ai_settings, screen, ship, bullets, aliens):
     collisions = pygame.sprite.groupcollide(bullets,aliens, True, True)
 
+def check_aliens_bottom(ai_settings, stats, screen, ship, bullets, aliens):
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            ship_hit(ai_settings, screen, stats, ship, bullets, aliens)
+            break
+
 
 def ship_hit(ai_settings, screen, stats, ship, bullets, aliens):
-    stats.ships_left -= 1
-    aliens.empty()
-    bullets.empty()
-    create_fleet(ai_settings, screen, ship, aliens)
-    ship.center_ship()
-    sleep(1)
+    if stats.ships_left > 0:
+        stats.ships_left -= 1
+        aliens.empty()
+        bullets.empty()
+        create_fleet(ai_settings, screen, ship, aliens)
+        ship.center_ship()
+        sleep(1)
+    else:
+        stats.game_active = False
 
 def update_aliens(ai_settings,aliens, ship, bullets, screen, stats):   
     check_fleet_edges(ai_settings, aliens)
@@ -71,6 +81,7 @@ def update_aliens(ai_settings,aliens, ship, bullets, screen, stats):
     if pygame.sprite.spritecollideany(ship, aliens):
         ship_hit(ai_settings, screen, stats, ship, bullets, aliens)
         # print("Ship hit!!")
+    check_aliens_bottom(ai_settings, stats, screen, ship, bullets, aliens)
         
 
 def fire_bullet(ai_settings, screen, ship, bullets):
