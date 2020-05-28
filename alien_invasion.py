@@ -8,7 +8,9 @@ import game_functions as gf
 from game_stats import GameStats
 from button import Button
 from scoreboard import Scoreboard
-
+# pygame.mixer.init()
+# pygame.mixer.music.load('sg.mp3')
+# pygame.mixer.music.Play()
 clock = pygame.time.Clock()
 def run_game():
     pygame.init()
@@ -23,11 +25,11 @@ def run_game():
     aliens = Group()
     gf.create_fleet(ai_settings, screen, ship, aliens)
     while True:
-        gf.check_events(ai_settings, screen, stats, ship, aliens, bullets, play_button)
+        gf.check_events(ai_settings, screen, stats,sb,  ship, aliens, bullets, play_button)
         if stats.game_active:
             ship.update() 
             gf.update_bullets(ai_settings,screen,stats, sb, ship, aliens, bullets)
-            gf.update_aliens(ai_settings, aliens, ship, bullets, screen, stats)   
+            gf.update_aliens(ai_settings, aliens, ship,sb, bullets, screen, stats)   
         gf.update_screen(ai_settings, screen,stats, sb, ship, aliens, bullets, play_button)
         screen.fill(ai_settings.bg_color)
         ship.blitme()
