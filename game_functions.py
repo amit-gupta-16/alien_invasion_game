@@ -6,23 +6,6 @@ from bullet import Bullet
 from alien import Alien
 
 
-def check_keydown_events(event,ai_settings, screen, ship, bullets):
-    if event.key == pygame.K_RIGHT:
-        # ship.rect.centerx += 5
-        ship.moving_right = True
-    elif event.key == pygame.K_LEFT:
-        ship.moving_left = True
-    elif event.key == pygame.K_SPACE:
-        fire_bullet(ai_settings, screen, ship, bullets)
-    elif event.key == pygame.k_q:
-        sys.exit()
-        
-def check_keyup_events(event, ship):
-    if event.key == pygame.K_RIGHT:
-        ship.moving_right = False
-    elif event.key == pygame.K_LEFT:
-        ship.moving_left = False
-
 def check_events(ai_settings, screen, stats,sb, ship, aliens, bullets, play_button):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -35,9 +18,28 @@ def check_events(ai_settings, screen, stats,sb, ship, aliens, bullets, play_butt
             mouse_x, mouse_y = pygame.mouse.get_pos()
             check_play_button(ai_settings, screen, ship, aliens,bullets, stats,sb, play_button, mouse_x, mouse_y)
 
+
+def check_keydown_events(event,ai_settings, screen, ship, bullets):
+    if event.key == pygame.K_RIGHT:
+        ship.moving_right = True
+    elif event.key == pygame.K_LEFT:
+        ship.moving_left = True
+    elif event.key == pygame.K_SPACE:
+        fire_bullet(ai_settings, screen, ship, bullets)
+
+        
+def check_keyup_events(event, ship):
+    if event.key == pygame.K_RIGHT:
+        ship.moving_right = False
+    elif event.key == pygame.K_LEFT:
+        ship.moving_left = False
+
+
 def check_play_button(ai_settings, screen, ship, aliens,bullets, stats,sb, play_button, mouse_x, mouse_y):
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked and not stats.game_active:
+        pygame.mixer.music.load('sochenge.mp3')
+        pygame.mixer.music.play()
         ai_settings.intialize_dynamic_settings()
         pygame.mouse.set_visible(False)
         stats.reset_stats()
@@ -50,6 +52,7 @@ def check_play_button(ai_settings, screen, ship, aliens,bullets, stats,sb, play_
         bullets.empty()
         create_fleet(ai_settings, screen, ship, aliens)
         ship.center_ship()
+
                 
 def update_screen(ai_settings, screen,stats, sb, ship, aliens, bullets, play_button):
     screen.fill(ai_settings.bg_color)
@@ -59,9 +62,9 @@ def update_screen(ai_settings, screen,stats, sb, ship, aliens, bullets, play_but
     for bullet in bullets.sprites():
         bullet.draw_bullet()
     ship.blitme()
-    # alien.blitme()
     aliens.draw(screen)
     pygame.display.flip()
+
 
 def update_bullets(ai_settings,screen,stats, sb, ship, aliens, bullets):
     bullets.update()
@@ -76,18 +79,23 @@ def update_bullets(ai_settings,screen,stats, sb, ship, aliens, bullets):
         sb.prep_level()
         create_fleet(ai_settings, screen, ship, aliens)
 
+
 def check_bullet_alien_collisions(ai_settings, screen,stats, sb, ship, bullets, aliens):
     collisions = pygame.sprite.groupcollide(bullets,aliens, True, True)
     if collisions:
+        pygame.mixer.music.load('explosion.mp3')
+        pygame.mixer.music.play(start=0.5)
         for aliens in collisions.values():
             stats.score += ai_settings.alien_points*len(aliens)
             sb.prep_score()
         check_high_score(stats, sb)
 
+
 def check_high_score(stats, sb):
     if stats.score > stats.high_score:
         stats.high_score = stats.score
         sb.prep_high_score()
+
 
 def check_aliens_bottom(ai_settings, stats,sb,screen, ship, bullets, aliens):
     screen_rect = screen.get_rect()
@@ -105,17 +113,19 @@ def ship_hit(ai_settings, screen, stats,sb, ship, bullets, aliens):
         bullets.empty()
         create_fleet(ai_settings, screen, ship, aliens)
         ship.center_ship()
+        pygame.mixer.music.load('gameover.mp3')
+        pygame.mixer.music.play()
         sleep(1)
     else:
         stats.game_active = False
         pygame.mouse.set_visible(True)
+
 
 def update_aliens(ai_settings,aliens, ship,sb, bullets, screen, stats):   
     check_fleet_edges(ai_settings, aliens)
     aliens.update()
     if pygame.sprite.spritecollideany(ship, aliens):
         ship_hit(ai_settings, screen, stats,sb, ship, bullets, aliens)
-        # print("Ship hit!!")
     check_aliens_bottom(ai_settings, stats,sb, screen, ship, bullets, aliens)
         
 
@@ -123,11 +133,13 @@ def fire_bullet(ai_settings, screen, ship, bullets):
     if len(bullets) < ai_settings.bullets_allowed:
             new_bullet = Bullet(ai_settings, ship, screen)
             bullets.add(new_bullet)
+
         
 def get_number_alien_x(ai_settings, alien_width):
     availiable_space_x = ai_settings.screen_width - (2*alien_width)
     number_aliens_x = int(availiable_space_x/(2*alien_width))
     return number_aliens_x
+
 
 def create_alien(ai_settings, screen, aliens, alien_number,row_number):
     alien = Alien(ai_settings, screen)
@@ -137,6 +149,7 @@ def create_alien(ai_settings, screen, aliens, alien_number,row_number):
     alien.rect.y = alien.rect.height + 2*alien.rect.height*row_number
     aliens.add(alien)
 
+
 def create_fleet(ai_settings, screen,ship, aliens):
     alien = Alien(ai_settings, screen)
     number_aliens_x = get_number_alien_x(ai_settings, alien.rect.width)
@@ -145,10 +158,12 @@ def create_fleet(ai_settings, screen,ship, aliens):
         for alien_number in range(number_aliens_x):
             create_alien(ai_settings, screen, aliens, alien_number,row_number)
 
+
 def get_number_rows(ai_settings,ship_height, alien_height):
     availiable_space_y = ai_settings.screen_height - (3*alien_height) - (ship_height)
     number_rows = int(availiable_space_y/(2*alien_height))
     return number_rows
+
 
 def check_fleet_edges(ai_settings, aliens):
     for alien in aliens.sprites():
@@ -156,10 +171,9 @@ def check_fleet_edges(ai_settings, aliens):
             change_fleet_direction(ai_settings, aliens)
             break
 
+
 def change_fleet_direction(ai_settings, aliens):
     for alien in aliens.sprites():
         alien.rect.y += ai_settings.fleet_drop_speed
     ai_settings.fleet_direction *= -1
-
-
 

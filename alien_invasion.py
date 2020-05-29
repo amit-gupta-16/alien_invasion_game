@@ -4,16 +4,16 @@ from settings import Settings
 from ship import Ship
 from pygame.sprite import Group
 import game_functions as gf
-# from alien import Alien
 from game_stats import GameStats
 from button import Button
 from scoreboard import Scoreboard
-# pygame.mixer.init()
-# pygame.mixer.music.load('sg.mp3')
-# pygame.mixer.music.Play()
+
 clock = pygame.time.Clock()
+
+
 def run_game():
     pygame.init()
+    pygame.mixer.init()
     ai_settings = Settings()
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion") 
@@ -35,6 +35,7 @@ def run_game():
         ship.blitme()
         pygame.display.flip()
         clock.tick(1440)  
+
 
 run_game()
 
